@@ -118,7 +118,9 @@ def _num_samples(x):
                             " a valid collection." % x)
         return x.shape[0]
     else:
-        return len(x)
+        # this will definitely mess up other things..
+        # better way is to check if x[0] is itself an iterable ??
+        return len(x) if not isinstance(x, (list,tuple)) else len(x[0])
 
 
 def _shape_repr(shape):
@@ -165,8 +167,15 @@ def check_consistent_length(*arrays):
     *arrays : list or tuple of input objects.
         Objects that will be checked for consistent length.
     """
-
-    lengths = [_num_samples(X) for X in arrays if X is not None]
+    lengths = []
+    for X in arrays:
+        if X is not None:
+            if isinstance(X, (list, tuple)):
+                for x in X:
+                    lengths.append(_num_samples(x))
+            else:
+                lengths.append(_num_samples(X))
+    #lengths = [_num_samples(X) for X in arrays if X is not None]
     uniques = np.unique(lengths)
     if len(uniques) > 1:
         raise ValueError("Found input variables with inconsistent numbers of"

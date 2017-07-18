@@ -197,7 +197,10 @@ def _safe_split(estimator, X, y, indices, train_indices=None):
         else:
             X_subset = X[np.ix_(indices, train_indices)]
     else:
-        X_subset = safe_indexing(X, indices)
+        if isinstance(X, (tuple, list)):
+            X_subset = [safe_indexing(x, indices) for x in X]
+        else:
+            X_subset = safe_indexing(X, indices)
 
     if y is not None:
         y_subset = safe_indexing(y, indices)
